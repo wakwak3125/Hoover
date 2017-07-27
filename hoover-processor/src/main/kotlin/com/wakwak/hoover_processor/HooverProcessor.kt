@@ -3,6 +3,7 @@ package com.wakwak.hoover_processor
 import com.squareup.javapoet.*
 import com.wakwak.hoover.CascadeDelete
 import javax.annotation.processing.AbstractProcessor
+import javax.annotation.processing.Filer
 import javax.annotation.processing.ProcessingEnvironment
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.SourceVersion
@@ -29,9 +30,11 @@ class HooverProcessor : AbstractProcessor() {
     }
 
     private val methods = mutableListOf<MethodSpec>()
+    private var filer: Filer? = null
 
     override fun init(env: ProcessingEnvironment?) {
         super.init(env)
+        filer = env?.filer
     }
 
     override fun getSupportedSourceVersion(): SourceVersion {
@@ -59,7 +62,10 @@ class HooverProcessor : AbstractProcessor() {
             }
         }
 
-        JavaFile.builder("com.wakwak.hoover.generated", typeSpecBuilder.build()).build().writeTo(System.out)
+        try {
+            JavaFile.builder("com.wakwak.hoover.generated", typeSpecBuilder.build()).build().writeTo(filer)
+        } catch(e: Exception) {
+        }
 
         return true
     }
